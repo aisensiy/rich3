@@ -4,8 +4,10 @@ import com.tw.api.json.PlayerJSON;
 import com.tw.core.Player;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 public class PlayerApi {
     private Player player;
@@ -16,8 +18,15 @@ public class PlayerApi {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PlayerJSON getPlayerInfo() {
+    public Response getPlayerInfo() {
+        if (player == null) {
+            return Response.status(404).build();
+        }
+        return Response.status(200).entity(new PlayerJSON(player)).build();
+    }
 
-        return new PlayerJSON(player);
+    @Path("commands")
+    public CommandsApi getCommands() {
+        return new CommandsApi(player);
     }
 }

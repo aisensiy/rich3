@@ -10,4 +10,6 @@ public interface Player {
     List<Land> getLands();
 
     Land getCurrentPosition();
+
+    List<Command> getCommands();
 }

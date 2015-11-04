@@ -1,5 +1,6 @@
 package com.tw.api;
 
+import com.tw.core.Command;
 import com.tw.core.Game;
 import com.tw.core.Land;
 import com.tw.core.Player;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
@@ -56,5 +58,26 @@ public class PlayerApiTest extends JerseyTest {
         Map map = response.readEntity(Map.class);
         assertThat(map.get("money"), is(1000));
         assertThat(map.get("point"), is(0));
+    }
+
+    @Test
+    public void should_return_404_for_player_not_exists() throws Exception {
+        when(game.getPlayer(1)).thenReturn(null);
+        Response response = target("/game/players/1").request().get();
+        assertThat(response.getStatus(), is(404));
+    }
+
+    @Test
+    public void should_list_player_commands() throws Exception {
+        when(game.getPlayer(1)).thenReturn(player);
+        Command command = mock(Command.class);
+        when(command.getName()).thenReturn("roll");
+        when(player.getCommands()).thenReturn(asList(command));
+        Response response = target("/game/players/1/commands").request().get();
+        List list = response.readEntity(List.class);
+
+        assertThat(response.getStatus(), is(200));
+        assertThat(list.size(), is(1));
+        assertThat(((Map) list.get(0)).get("name"), is("roll"));
     }
 }
