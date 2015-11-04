@@ -15,4 +15,9 @@ public class GameApi {
     public PlayersApi getPlayers() {
         return new PlayersApi(game);
     }
+
+    @Path("lands")
+    public LandsApi getGameMap() {
+        return new LandsApi(game);
+    }
 }

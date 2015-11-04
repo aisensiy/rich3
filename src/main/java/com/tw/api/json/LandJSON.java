@@ -13,4 +13,8 @@ public class LandJSON {
     public int getId() {
         return land.getId();
     }
+
+    public String getType() {
+        return land.getType();
+    }
 }
