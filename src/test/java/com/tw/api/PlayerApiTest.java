@@ -94,5 +94,28 @@ public class PlayerApiTest extends JerseyTest {
 
         assertThat(response.getStatus(), is(200));
         verify(player).execute(eq("buyLand"));
+        Map map = response.readEntity(Map.class);
+        assertThat(map.get("message"), is("buy land success"));
+    }
+
+    @Test
+    public void should_execute_command_and_return_uri_with_response_command() throws Exception {
+        when(game.getPlayer(1)).thenReturn(player);
+        GameResponse gameResponse = new GameResponseCommand() {
+
+            @Override
+            public String getMessage() {
+                return "Do you want to buy this land? (Y/N)";
+            }
+        };
+        when(player.getId()).thenReturn(1);
+        when(player.execute("roll")).thenReturn(gameResponse);
+        Response response = target("/game/players/1/commands/roll").request().post(Entity.form(new Form()));
+
+        verify(player).execute(eq("roll"));
+        assertThat(response.getStatus(), is(200));
+        assertThat(response.getHeaders().get("uri").get(0), is("/game/players/1/commands"));
+        Map map = response.readEntity(Map.class);
+        assertThat(map.get("message"), is("Do you want to buy this land? (Y/N)"));
     }
 }

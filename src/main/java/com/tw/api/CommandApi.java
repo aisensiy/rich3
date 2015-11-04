@@ -2,6 +2,7 @@ package com.tw.api;
 
 import com.tw.api.json.GameResponseJSON;
 import com.tw.core.GameResponse;
+import com.tw.core.GameResponseCommand;
 import com.tw.core.Player;
 
 import javax.ws.rs.POST;
@@ -23,6 +24,13 @@ public class CommandApi {
     @Produces(MediaType.APPLICATION_JSON)
     public Response execute() {
         GameResponse gameResponse = player.execute(commandName);
-        return Response.status(200).entity(new GameResponseJSON(gameResponse)).build();
+        if (gameResponse instanceof GameResponseCommand) {
+            return Response.status(200)
+                    .entity(new GameResponseJSON(gameResponse))
+                    .header("uri", String.format("/game/players/%d/commands", player.getId()))
+                    .build();
+        } else {
+            return Response.status(200).entity(new GameResponseJSON(gameResponse)).build();
+        }
     }
 }
