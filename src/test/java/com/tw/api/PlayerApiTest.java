@@ -44,19 +44,24 @@ public class PlayerApiTest extends JerseyTest {
     @Test
     public void should_get_player_result_player_info() throws Exception {
         when(game.getPlayer(1)).thenReturn(player);
+        when(player.getId()).thenReturn(1);
         when(player.getMoney()).thenReturn(1000);
         when(player.getPoint()).thenReturn(0);
         List<Land> lands = new ArrayList<>();
         when(player.getLands()).thenReturn(lands);
-        Land land = mock(Land.class);
-        when(land.getId()).thenReturn(1);
-        when(player.getCurrentPosition()).thenReturn(land);
+        Land expected = mock(Land.class);
+        when(expected.getId()).thenReturn(1);
+        when(player.getCurrentPosition()).thenReturn(expected);
 
         Response response = target("/game/players/1").request().get();
         assertThat(response.getStatus(), is(200));
         Map map = response.readEntity(Map.class);
         assertThat(map.get("money"), is(1000));
         assertThat(map.get("point"), is(0));
+        assertThat(((List) map.get("lands")).size(), is(0));
+        Map land = (Map) (map.get("currentPosition"));
+        assertThat(land.get("id"), is(1));
+        assertThat(map.get("uri"), is("/game/players/1"));
     }
 
     @Test
