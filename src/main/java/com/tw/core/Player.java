@@ -12,4 +12,6 @@ public interface Player {
     Land getCurrentPosition();
 
     List<Command> getCommands();
+
+    GameResponse execute(String command);
 }

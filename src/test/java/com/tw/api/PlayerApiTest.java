@@ -1,15 +1,14 @@
 package com.tw.api;
 
-import com.tw.core.Command;
-import com.tw.core.Game;
-import com.tw.core.Land;
-import com.tw.core.Player;
+import com.tw.core.*;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +17,8 @@ import java.util.Map;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class PlayerApiTest extends JerseyTest {
     private Game game;
@@ -79,5 +78,21 @@ public class PlayerApiTest extends JerseyTest {
         assertThat(response.getStatus(), is(200));
         assertThat(list.size(), is(1));
         assertThat(((Map) list.get(0)).get("name"), is("roll"));
+    }
+
+    @Test
+    public void should_execute_command_and_return_message_with_response() throws Exception {
+        when(game.getPlayer(1)).thenReturn(player);
+        GameResponse gameResponse = new GameResponse() {
+            @Override
+            public String getMessage() {
+                return "buy land success";
+            }
+        };
+        when(player.execute("buyLand")).thenReturn(gameResponse);
+        Response response = target("/game/players/1/commands/buyLand").request().post(Entity.form(new Form()));
+
+        assertThat(response.getStatus(), is(200));
+        verify(player).execute(eq("buyLand"));
     }
 }
