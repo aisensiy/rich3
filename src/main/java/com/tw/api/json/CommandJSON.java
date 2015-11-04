@@ -12,4 +12,8 @@ public class CommandJSON {
     public String getName() {
         return command.getName();
     }
+
+    public String getParameters() {
+        return command.getParameters();
+    }
 }

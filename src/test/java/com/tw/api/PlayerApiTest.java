@@ -76,6 +76,7 @@ public class PlayerApiTest extends JerseyTest {
         when(game.getPlayer(1)).thenReturn(player);
         Command command = mock(Command.class);
         when(command.getName()).thenReturn("roll");
+        when(command.getParameters()).thenReturn("no parameters");
         when(player.getCommands()).thenReturn(asList(command));
         Response response = target("/game/players/1/commands").request().get();
         List list = response.readEntity(List.class);
@@ -83,6 +84,7 @@ public class PlayerApiTest extends JerseyTest {
         assertThat(response.getStatus(), is(200));
         assertThat(list.size(), is(1));
         assertThat(((Map) list.get(0)).get("name"), is("roll"));
+        assertThat(((Map) list.get(0)).get("parameters"), is("no parameters"));
     }
 
     @Test
