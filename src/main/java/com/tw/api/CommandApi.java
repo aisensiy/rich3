@@ -1,6 +1,7 @@
 package com.tw.api;
 
 import com.tw.api.json.GameResponseJSON;
+import com.tw.core.Command;
 import com.tw.core.GameResponse;
 import com.tw.core.GameResponseCommand;
 import com.tw.core.Player;
@@ -23,7 +24,13 @@ public class CommandApi {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response execute() {
-        GameResponse gameResponse = player.execute(commandName);
+        Command command = player.findCommandByName(commandName);
+        if (command == null) {
+            return Response.status(404).build();
+        }
+
+        GameResponse gameResponse = player.execute(command);
+
         if (gameResponse instanceof GameResponseCommand) {
             return Response.status(200)
                     .entity(new GameResponseJSON(gameResponse))

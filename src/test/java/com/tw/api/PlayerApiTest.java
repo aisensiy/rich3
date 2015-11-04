@@ -89,17 +89,19 @@ public class PlayerApiTest extends JerseyTest {
                 return "buy land success";
             }
         };
-        when(player.execute("buyLand")).thenReturn(gameResponse);
+        Command buyLand = mock(Command.class);
+        when(player.findCommandByName("buyLand")).thenReturn(buyLand);
+        when(player.execute(buyLand)).thenReturn(gameResponse);
         Response response = target("/game/players/1/commands/buyLand").request().post(Entity.form(new Form()));
 
         assertThat(response.getStatus(), is(200));
-        verify(player).execute(eq("buyLand"));
+        verify(player).execute(eq(buyLand));
         Map map = response.readEntity(Map.class);
         assertThat(map.get("message"), is("buy land success"));
     }
 
     @Test
-    public void should_execute_command_and_return_uri_with_response_command() throws Exception {
+     public void should_execute_command_and_return_uri_with_response_command() throws Exception {
         when(game.getPlayer(1)).thenReturn(player);
         GameResponse gameResponse = new GameResponseCommand() {
 
@@ -108,14 +110,25 @@ public class PlayerApiTest extends JerseyTest {
                 return "Do you want to buy this land? (Y/N)";
             }
         };
+        Command roll = mock(Command.class);
+        when(player.findCommandByName("roll")).thenReturn(roll);
+        when(roll.execute(eq(player))).thenReturn(gameResponse);
         when(player.getId()).thenReturn(1);
-        when(player.execute("roll")).thenReturn(gameResponse);
+        when(player.execute(roll)).thenReturn(gameResponse);
         Response response = target("/game/players/1/commands/roll").request().post(Entity.form(new Form()));
 
-        verify(player).execute(eq("roll"));
+        verify(player).execute(eq(roll));
         assertThat(response.getStatus(), is(200));
         assertThat(response.getHeaders().get("uri").get(0), is("/game/players/1/commands"));
         Map map = response.readEntity(Map.class);
         assertThat(map.get("message"), is("Do you want to buy this land? (Y/N)"));
+    }
+
+    @Test
+    public void should_return_404_if_command_not_found() throws Exception {
+        when(game.getPlayer(1)).thenReturn(player);
+        when(player.findCommandByName(eq("roll"))).thenReturn(null);
+        Response response = target("/game/players/1/commands/roll").request().post(Entity.form(new Form()));
+        assertThat(response.getStatus(), is(404));
     }
 }

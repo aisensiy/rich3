@@ -13,7 +13,9 @@ public interface Player {
 
     List<Command> getCommands();
 
-    GameResponse execute(String command);
+    GameResponse execute(Command command);
 
     int getId();
+
+    Command findCommandByName(String commandName);
 }
